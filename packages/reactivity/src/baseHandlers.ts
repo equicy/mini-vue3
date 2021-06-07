@@ -1,6 +1,6 @@
-import { extend, isObject } from "@vue/shared/src"
-import { track } from "./effect"
-import { TrackOpTypes } from "./operators"
+import { extend, hasChanged, hasOwn, isArray, isIntegerKey, isObject } from "@vue/shared/src"
+import { track, trigger } from "./effect"
+import { TrackOpTypes, TriggerOpTypes } from "./operators"
 import { reactive, readonly } from "./reactive"
 
 
@@ -67,7 +67,18 @@ function createSetter(isShallow= false) {
   return function set(target, key, value, receiver) {
     // target[key] = value 可能会失败，但是不会返回异常，但是Reflect.set会返回是否设置成功
 
+    const oldValue = target[key]
+
+    let hasKey = isArray(target) && isIntegerKey(key) ? Number(key) < target.length : hasOwn(target, key)
     const result = Reflect.set(target, key, value, receiver) // target[key] = value
+
+    if (!hasKey) {
+      // 新增
+      trigger(target, TriggerOpTypes.ADD, key, value)
+    } else if (hasChanged(oldValue, value)) {
+      // 修改
+      trigger(target, TriggerOpTypes.SET, key, value, oldValue)
+    }
 
     // 当数据更改时，effect重新执行
     return result
