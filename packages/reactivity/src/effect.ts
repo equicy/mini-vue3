@@ -21,7 +21,7 @@ function createReactiveEffect(fn, options) {
       try {
         effectStack.push(effect)
         activeEffect = effect
-        fn() // 函数执行会执行get
+        return fn() // 函数执行会执行get
       } finally {
         effectStack.pop()
         activeEffect = effectStack[effectStack.length-1]
@@ -99,5 +99,11 @@ export function trigger(target, type, key?, newValue?, oldValue?) {
         }
     }
   }
-  effects.forEach((effect: any) => effect())
+  effects.forEach((effect: any) => {
+    if (effect.options.scheduler) {
+      effect.options.scheduler(effect)
+    } else {
+      effect()
+    }
+  })
 }

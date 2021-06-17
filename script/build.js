@@ -12,7 +12,7 @@ const targets = fs.readdirSync('packages').filter(f => {
 
 async function build(target) {
 
-  await execa('rollup', ['-c', '--environment', `TARGET:${target}`], {stdio: 'inherit'})
+  await execa('rollup', ['-wc', '--environment', `TARGET:${target}`], {stdio: 'inherit'})
 }
 
 function runParallel(targets, iteratorFn) {

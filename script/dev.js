@@ -1,7 +1,7 @@
 const fs = require('fs')
 const execa = require('execa')
 
-const target = 'reactivity'
+const target = 'runtime-core'
 
 build(target)
 
