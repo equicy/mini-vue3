@@ -1,6 +1,8 @@
 
 let queue = []
 export function queueJob (job) {
+
+  // 多次操作state触发同一个effect，只触发一次
   if (!queue.includes(job)) {
     queue.push(job)
     queueFlush()
@@ -11,6 +13,10 @@ let isFlushPending = false;
 function queueFlush() {
   if (!isFlushPending) {
     isFlushPending = true;
+    // 微任务，等主线程同步任务执行完之后，才会执行过这个微任务例如多次修改值
+    // state.name = 'my'
+    // state.name = 'equicy'
+    // state.name = 'my'
     Promise.resolve().then(FlushJobs)
   }
 }
